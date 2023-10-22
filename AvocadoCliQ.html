@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <title>Avocado pay with CliQ</title>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include a loading popup library, for example, SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <style>
+        body {
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            background: #71BF44;
+            font-family: sans-serif;
+            direction: rtl;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+
+            background: white ;
+            border: 1px solid transparent;
+            border-radius: 5px;
+            padding: 20px;
+            width: auto; /* Adjust the width as needed */
+            box-shadow: 0 0 8px 0 rgb(101, 45, 11);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: right;
+        }
+
+        select , option{
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+
+        }
+        input[type="text"] {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        input[type="submit"] {
+            font-family: sans-serif;
+            background-color: #E0D11F;
+            color: #652D0B;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            display: block;
+            margin-top: 10px;
+            width: 100%;
+        }
+        input[type="submit"]:hover {
+            background-color: #652D0B;
+            color: #E0D11F;
+        }
+
+        #responseDiv {
+            margin-top: 20px;
+            display: none; /* Initially hide the response */
+        }
+        .loading-dots {
+            display: inline-block;
+            font-size: 24px;
+        }
+
+        .loading-dots div {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 0 4px;
+            border-radius: 50%;
+            background: #71BF44; /* Change the color as needed */
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="card" style="font-family: sans-serif;">
+    <img src="img/logo.svg" alt="Avocado" >
+    <form method="POST" id="paymentForm" action="CliQIntegration.php">
+        <label for="RAliasType" > نوع الاسم المستعار</label>
+        <select name="RAliasType" id="RAliasType" required>
+            <option value="MOBL">Mobile Number </option>
+            <option value="ALIAS">Alias</option>
+        </select>
+
+        <label for="RAliasValue">الاسم المستعار</label>
+        <input type="text" name="RAliasValue" id="RAliasValue" required>
+
+        <input type="submit" value="ارسال">
+    </form>
+
+</div>
+<div id="responseDiv"></div>
+
+<script>
+    $(document).ready(function () {
+        // Attach a submit event handler to the form
+        $("form").submit(function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Show a loading popup without the "Okay" button
+            Swal.fire({
+                title: '',
+                showConfirmButton: false, // Hide the "Okay" button
+                html: '<p>جار ارسال الطلب </p> <div class="loading-dots">\n' +
+                    '        <div></div>\n' +
+                    '        <div></div>\n' +
+                    '        <div></div>\n' +
+                    '    </div>'
+            });
+
+            // Get form data
+            var formData = {
+                RAliasType: $("#RAliasType").val(),
+                RAliasValue: $("#RAliasValue").val()
+            };
+
+            // Send the data to the server using AJAX
+            $.ajax({
+                type: "POST",
+                url: "CliQIntegration.php",
+                data: formData,
+                success: function (response) {
+                    // Close the loading popup
+                    Swal.close();
+
+                    console.log(JSON.parse(response))
+                    // Display the response in the designated element (e.g., a div with id "responseDiv")
+                // Show the response div
+                    Swal.fire({
+                        title: '',
+                        html:'<p> تم ارسال طلب الدفعة بنحاح!</p><p>الرجاء الذهاب الى تطبيق البنك الخاص بك لقبول طلب الدفعة</p> ',
+                        confirmButtonColor: '#71BF44',
+                        confirmButtonText: 'حسناً'
+                         // Hide the "Okay" button
+                    });
+                    // You can also add additional handling or formatting of the response as needed.
+                },
+                error: function (xhr, status, error) {
+                    // Close the loading popup
+                    Swal.close();
+
+                    // Handle the error, e.g., display an error message
+                    console.log("AJAX error: " + error);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
