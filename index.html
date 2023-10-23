@@ -30,11 +30,11 @@
             background: white;
             border: 1px solid transparent;
             border-radius: 5px;
-            padding: 20px;
-            width: auto; /* Adjust the width as needed */
+            padding: 30px;
             box-shadow: 0 0 20px 0 rgb(101, 45, 11);
             font-size: 18px;
             height: 90%;
+            width: fit-content;
 
         }
 
@@ -47,28 +47,30 @@
 
         select, option {
             width: 100%;
-            padding: 10px;
+            padding: 5px 10px;
             margin-bottom: 10px;
             border: 1px solid #7faa4a;
             border-radius: 10px;
             color: #7faa4a;
-
+            font-family: "Cairo", sans-serif;
+            font-weight: normal;
         }
 
-        input[type="text"] {
+        input[type="text"], input[type="tel"]{
             width: 90%;
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #7faa4a;
             border-radius: 10px;
             color: #7faa4a;
+
         }
 
         input[type="submit"] {
             font-family: "Cairo", sans-serif;
             background-color: #E0D11F;
             color: #652D0B;
-            padding: 10px 20px;
+            padding: 5px 20px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
@@ -116,8 +118,9 @@
     <form method="POST" id="paymentForm" action="CliQIntegration.php">
         <label for="RAliasType"> نوع الاسم المستعار</label>
         <select name="RAliasType" id="RAliasType" required>
-            <option value="MOBL">Mobile Number</option>
-            <option value="ALIAS">Alias</option>
+            <option selected="selected" value=""> اختيار</option>
+            <option value="MOBL">رقم هاتف</option>
+            <option value="ALIAS">اسم مستعار</option>
         </select>
 
         <label for="RAliasValue">الاسم المستعار</label>
@@ -128,6 +131,16 @@
 
 </div>
 <script>
+    document.getElementById('RAliasType').addEventListener('change', function() {
+        var RAliasType = this.value;
+        var RAliasValueInput = document.getElementById('RAliasValue');
+
+        if (RAliasType === 'MOBL') {
+            RAliasValueInput.type = 'tel';
+        } else {
+            RAliasValueInput.type = 'text';
+        }
+    });
     $(document).ready(function () {
         // Attach a submit event handler to the form
         $("form").submit(async function (event) {
