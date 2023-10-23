@@ -36,6 +36,7 @@ function getAuthToken($getTokenURL, $correlationID, $merchantID, $userId, $passw
 function makePaymentRequest($paymentRequestURL, $correlationID, $merchantID, $userId, $password, $token) {
   // Set the headers for the PaymentRequest API request
   $paymentRequestHeaders = [
+          "Connection: keep-alive",
           "CorrelationID: " . $correlationID,
           "MerchantID: " . $merchantID,
           "UserId: " . $userId,
@@ -102,10 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       $paymentResponseData = makePaymentRequest($paymentRequestURL, $correlationID, $merchantID, $userId, $password, $token);
 
-      echo json_encode($paymentResponseData);
+      echo $paymentResponseData;
     } else {
-      echo "{\"error\" : \"Failed to obtain a token. Check the getToken API response.\"}";
-
+      return "{\"error\" : \"Failed to obtain a token. Check the getToken API response.\"}";
     }
   }
 }

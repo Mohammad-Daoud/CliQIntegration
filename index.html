@@ -8,6 +8,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Include a loading popup library, for example, SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Cairo">
+    <link rel="icon" href="img/favicon/favicon.ico" type="image/x-icon">
     <style>
         body {
             overflow: hidden;
@@ -20,62 +22,69 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
+            margin: auto;
         }
 
         .card {
-
-            background: white ;
+            font-family: "Cairo", sans-serif;
+            background: white;
             border: 1px solid transparent;
             border-radius: 5px;
             padding: 20px;
             width: auto; /* Adjust the width as needed */
-            box-shadow: 0 0 8px 0 rgb(101, 45, 11);
+            box-shadow: 0 0 20px 0 rgb(101, 45, 11);
+            font-size: 18px;
+            height: 90%;
+
         }
 
         label {
             display: block;
             margin-bottom: 5px;
             text-align: right;
+            color: #7faa4a;
         }
 
-        select , option{
+        select, option {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
+            border: 1px solid #7faa4a;
+            border-radius: 10px;
+            color: #7faa4a;
 
         }
+
         input[type="text"] {
             width: 90%;
             padding: 10px;
             margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
+            border: 1px solid #7faa4a;
+            border-radius: 10px;
+            color: #7faa4a;
         }
 
         input[type="submit"] {
-            font-family: sans-serif;
+            font-family: "Cairo", sans-serif;
             background-color: #E0D11F;
             color: #652D0B;
             padding: 10px 20px;
             border: none;
-            border-radius: 3px;
+            border-radius: 10px;
             cursor: pointer;
             display: block;
             margin-top: 10px;
             width: 100%;
+            font-size: 18px;
+            font-weight: bold;
+
         }
+
         input[type="submit"]:hover {
             background-color: #652D0B;
             color: #E0D11F;
         }
 
-        #responseDiv {
-            margin-top: 20px;
-            display: none; /* Initially hide the response */
-        }
         .loading-dots {
             display: inline-block;
             font-size: 24px;
@@ -102,12 +111,12 @@
     </style>
 </head>
 <body>
-<div class="card" style="font-family: sans-serif;">
-    <img src="img/logo.svg" alt="Avocado" >
+<div class="card">
+    <img src="img/logo.svg" alt="Avocado">
     <form method="POST" id="paymentForm" action="CliQIntegration.php">
-        <label for="RAliasType" > نوع الاسم المستعار</label>
+        <label for="RAliasType"> نوع الاسم المستعار</label>
         <select name="RAliasType" id="RAliasType" required>
-            <option value="MOBL">Mobile Number </option>
+            <option value="MOBL">Mobile Number</option>
             <option value="ALIAS">Alias</option>
         </select>
 
@@ -118,19 +127,17 @@
     </form>
 
 </div>
-<div id="responseDiv"></div>
-
 <script>
     $(document).ready(function () {
         // Attach a submit event handler to the form
-        $("form").submit(function (event) {
+        $("form").submit(async function (event) {
             event.preventDefault(); // Prevent the default form submission
 
             // Show a loading popup without the "Okay" button
             Swal.fire({
                 title: '',
                 showConfirmButton: false, // Hide the "Okay" button
-                html: '<p>جار ارسال الطلب </p> <div class="loading-dots">\n' +
+                html: '<p>جار إرسال الطلب </p> <div class="loading-dots">\n' +
                     '        <div></div>\n' +
                     '        <div></div>\n' +
                     '        <div></div>\n' +
@@ -138,40 +145,79 @@
             });
 
             // Get form data
-            var formData = {
+            const formData = {
                 RAliasType: $("#RAliasType").val(),
                 RAliasValue: $("#RAliasValue").val()
             };
 
+            try {
+                let isAlive = true;
+                $.ajax({
+                    type: "POST",
+                    url: "CliQIntegration.php",
+                    data: formData,
+                    success: function (response) {
+                        isAlive = false;
+                        // Close the loading popup
+                        Swal.close();
+
+                        const jsonResponse =  JSON.parse(response);
+                        console.log(jsonResponse)
+                        console.log(jsonResponse.errorCode)
+                        console.log(jsonResponse.description_ar)
+
+                        if (jsonResponse.errorCode === "0") {
+                            Swal.fire({
+                                title: '',
+                                html: '<p> تم إرسال طلب الدفعة بنجاح!</p><p>الرجاء الذهاب الى تطبيق البنك الخاص بك لقبول طلب الدفعة</p> ',
+                                confirmButtonColor: '#71BF44',
+                                confirmButtonText: 'حسناً'
+                            });
+                        }else {
+                            Swal.fire({
+                                title: '',
+                                html: '<p>'+ jsonResponse.description_ar+'</p>',
+                                confirmButtonColor: '#c72234',
+                                confirmButtonText: 'حسناً'
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Close the loading popup
+                        Swal.close();
+
+                        // Handle the error, e.g., display an error message
+                        console.log("AJAX error: " + error);
+                    }
+                });
+
+                // Close the loading popup
+                setTimeout(function() {
+                    if (isAlive){
+                        Swal.close();
+                        Swal.fire({
+                            title: '',
+                            html: '<p> تم إرسال طلب الدفعة بنجاح!</p><p>الرجاء الذهاب الى تطبيق البنك الخاص بك لقبول طلب الدفعة</p> ',
+                            confirmButtonColor: '#71BF44',
+                            confirmButtonText: 'حسناً'
+                        });
+                    }
+                }, 5000);
+
+            } catch (error) {
+                Swal.close();
+                Swal.fire({
+                    title: '',
+                    html: '<p> حدث خطأ</p>',
+                    confirmButtonColor: '#c72234',
+                    confirmButtonText: 'حسناً'
+                });
+                // Handle errors
+                console.error(error);
+
+            }
             // Send the data to the server using AJAX
-            $.ajax({
-                type: "POST",
-                url: "CliQIntegration.php",
-                data: formData,
-                success: function (response) {
-                    // Close the loading popup
-                    Swal.close();
 
-                    console.log(JSON.parse(response))
-                    // Display the response in the designated element (e.g., a div with id "responseDiv")
-                // Show the response div
-                    Swal.fire({
-                        title: '',
-                        html:'<p> تم ارسال طلب الدفعة بنحاح!</p><p>الرجاء الذهاب الى تطبيق البنك الخاص بك لقبول طلب الدفعة</p> ',
-                        confirmButtonColor: '#71BF44',
-                        confirmButtonText: 'حسناً'
-                         // Hide the "Okay" button
-                    });
-                    // You can also add additional handling or formatting of the response as needed.
-                },
-                error: function (xhr, status, error) {
-                    // Close the loading popup
-                    Swal.close();
-
-                    // Handle the error, e.g., display an error message
-                    console.log("AJAX error: " + error);
-                }
-            });
         });
     });
 </script>
