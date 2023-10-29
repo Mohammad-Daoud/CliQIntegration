@@ -86,29 +86,39 @@ function makePaymentRequest($paymentRequestURL, $correlationID, $merchantID, $us
 
 // Main code
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-  echo json_encode(['amount' => '25.00']);
+  session_start();
+  $csrfToken             = bin2hex(random_bytes(32)); // Generate a random token
+  $_SESSION['csrfToken'] = $csrfToken;
+  echo json_encode(['amount' => '30.00', 'token' => $csrfToken]);
+
+
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (isset($_POST['RAliasType'], $_POST['RAliasValue'])) {
-    $correlationID = uniqid();
-    $merchantID    = "AVOCADO1";
-    $userId        = "UWallet";
-    $password      = "wyxthKzbGn";
+  if ($_POST['token'] !== $_SESSION['csrfToken']) {
+    if (isset($_POST['RAliasType'], $_POST['RAliasValue'])) {
+      $correlationID = uniqid();
+      $merchantID    = "AVOCADO1";
+      $userId        = "UWallet";
+      $password      = "wyxthKzbGn";
 
-    $getTokenURL = "https://testapi.uwallet.jo/A2AMerchantInterface/GetToken";
+      $getTokenURL = "https://testapi.uwallet.jo/A2AMerchantInterface/GetToken";
 
-    $paymentRequestURL = "https://testapi.uwallet.jo/A2AMerchantInterface/Purchase";
+      $paymentRequestURL = "https://testapi.uwallet.jo/A2AMerchantInterface/Purchase";
 
-    $tokenResponseData = getAuthToken($getTokenURL, $correlationID, $merchantID, $userId, $password);
+      $tokenResponseData = getAuthToken($getTokenURL, $correlationID, $merchantID, $userId, $password);
 
-    if (isset($tokenResponseData['TokenInfo']['Token'])) {
-      $token = $tokenResponseData['TokenInfo']['Token'];
+      if (isset($tokenResponseData['TokenInfo']['Token'])) {
+        $token = $tokenResponseData['TokenInfo']['Token'];
 
-      $paymentResponseData = makePaymentRequest($paymentRequestURL, $correlationID, $merchantID, $userId, $password, $token);
+        $paymentResponseData = makePaymentRequest($paymentRequestURL, $correlationID, $merchantID, $userId, $password, $token);
 
-      echo $paymentResponseData;
-    } else {
-      return "{\"error\" : \"Failed to obtain a token. Check the getToken API response.\"}";
+        echo $paymentResponseData;
+      } else {
+        echo json_encode(["error" => "Failed to obtain a token. Check the getToken API response."]);
+      }
     }
+  } else {
+    echo json_encode(["error" => "CSRF ATTACK DETECTED !!", "description" => "خطأ ... الرجاء المحاولة لاحفاً"]);
+
   }
 }
 
