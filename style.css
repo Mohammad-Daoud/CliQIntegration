@@ -1,0 +1,101 @@
+body {
+    height: 100%;
+    width: 100%;
+    background: #71BF44;
+    font-family: sans-serif;
+    direction: rtl;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: auto;
+}
+
+.card {
+    font-family: "Cairo", sans-serif;
+    background: white;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 30px;
+    box-shadow: 0 0 20px 0 rgb(101, 45, 11);
+    font-size: 18px;
+    height: 90%;
+    width: fit-content;
+
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    text-align: right;
+    color: #7faa4a;
+}
+
+select, option {
+    width: 100%;
+    padding: 5px 10px;
+    margin-bottom: 10px;
+    border: 1px solid #7faa4a;
+    border-radius: 10px;
+    color: #7faa4a;
+    font-family: "Cairo", sans-serif;
+    font-weight: normal;
+}
+
+input[type="text"], input[type="tel"]{
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #7faa4a;
+    border-radius: 10px;
+    color: #7faa4a;
+
+}
+
+input[type="submit"] {
+    font-family: "Cairo", sans-serif;
+    background-color: #E0D11F;
+    color: #652D0B;
+    padding: 5px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: block;
+    margin-top: 10px;
+    width: 100%;
+    font-size: 18px;
+    font-weight: bold;
+
+}
+
+input[type="submit"]:hover {
+    background-color: #652D0B;
+    color: #E0D11F;
+}
+
+.loading-dots {
+    display: inline-block;
+    font-size: 24px;
+}
+
+.loading-dots div {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 0 4px;
+    border-radius: 50%;
+    background: #71BF44; /* Change the color as needed */
+    animation: bounce 1s infinite;
+}
+p{
+    margin: 0;
+    text-align: center;
+}
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}

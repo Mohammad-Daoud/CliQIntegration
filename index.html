@@ -5,234 +5,31 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="img/favicon/favicon.ico" type="image/x-icon">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Include a loading popup library, for example, SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Cairo">
-    <link rel="icon" href="img/favicon/favicon.ico" type="image/x-icon">
-    <style>
-        body {
-            height: 100%;
-            width: 100%;
-            background: #71BF44;
-            font-family: sans-serif;
-            direction: rtl;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: auto;
-        }
-
-        .card {
-            font-family: "Cairo", sans-serif;
-            background: white;
-            border: 1px solid transparent;
-            border-radius: 5px;
-            padding: 30px;
-            box-shadow: 0 0 20px 0 rgb(101, 45, 11);
-            font-size: 18px;
-            height: 90%;
-            width: fit-content;
-
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            text-align: right;
-            color: #7faa4a;
-        }
-
-        select, option {
-            width: 100%;
-            padding: 5px 10px;
-            margin-bottom: 10px;
-            border: 1px solid #7faa4a;
-            border-radius: 10px;
-            color: #7faa4a;
-            font-family: "Cairo", sans-serif;
-            font-weight: normal;
-        }
-
-        input[type="text"], input[type="tel"]{
-            width: 90%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #7faa4a;
-            border-radius: 10px;
-            color: #7faa4a;
-
-        }
-
-        input[type="submit"] {
-            font-family: "Cairo", sans-serif;
-            background-color: #E0D11F;
-            color: #652D0B;
-            padding: 5px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            display: block;
-            margin-top: 10px;
-            width: 100%;
-            font-size: 18px;
-            font-weight: bold;
-
-        }
-
-        input[type="submit"]:hover {
-            background-color: #652D0B;
-            color: #E0D11F;
-        }
-
-        .loading-dots {
-            display: inline-block;
-            font-size: 24px;
-        }
-
-        .loading-dots div {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            margin: 0 4px;
-            border-radius: 50%;
-            background: #71BF44; /* Change the color as needed */
-            animation: bounce 1s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="card">
     <img src="img/logo.svg" alt="Avocado">
     <form method="POST" id="paymentForm" action="CliQIntegration.php">
+        <input type="text" name="amount" id="amount" value="" hidden>
         <label for="RAliasType"> نوع الاسم المستعار</label>
         <select name="RAliasType" id="RAliasType" required>
             <option selected="selected" value=""> اختيار</option>
             <option value="MOBL">رقم هاتف</option>
             <option value="ALIAS">اسم مستعار</option>
         </select>
-
         <label for="RAliasValue">الاسم المستعار</label>
         <input type="text" name="RAliasValue" id="RAliasValue" required>
-
+        <p id="amountText"></p>
         <input type="submit" value="ارسال">
     </form>
 
 </div>
-<script>
-    document.getElementById('RAliasType').addEventListener('change', function() {
-        var RAliasType = this.value;
-        var RAliasValueInput = document.getElementById('RAliasValue');
-
-        if (RAliasType === 'MOBL') {
-            RAliasValueInput.type = 'tel';
-        } else {
-            RAliasValueInput.type = 'text';
-        }
-    });
-    $(document).ready(function () {
-        // Attach a submit event handler to the form
-        $("form").submit(async function (event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            // Show a loading popup without the "Okay" button
-            Swal.fire({
-                title: '',
-                showConfirmButton: false, // Hide the "Okay" button
-                html: '<p>جار إرسال الطلب </p> <div class="loading-dots">\n' +
-                    '        <div></div>\n' +
-                    '        <div></div>\n' +
-                    '        <div></div>\n' +
-                    '    </div>'
-            });
-
-            // Get form data
-            const formData = {
-                RAliasType: $("#RAliasType").val(),
-                RAliasValue: $("#RAliasValue").val()
-            };
-
-            try {
-                let isAlive = true;
-                $.ajax({
-                    type: "POST",
-                    url: "CliQIntegration.php",
-                    data: formData,
-                    success: function (response) {
-                        isAlive = false;
-                        // Close the loading popup
-                        Swal.close();
-
-                        const jsonResponse =  JSON.parse(response);
-                        console.log(jsonResponse)
-                        console.log(jsonResponse.errorCode)
-                        console.log(jsonResponse.description_ar)
-
-                        if (jsonResponse.errorCode === "0") {
-                            Swal.fire({
-                                title: '',
-                                html: '<p> تم إرسال طلب الدفعة بنجاح!</p><p>الرجاء الذهاب الى تطبيق البنك الخاص بك لقبول طلب الدفعة</p> ',
-                                confirmButtonColor: '#71BF44',
-                                confirmButtonText: 'حسناً'
-                            });
-                        }else {
-                            Swal.fire({
-                                title: '',
-                                html: '<p>'+ jsonResponse.description_ar+'</p>',
-                                confirmButtonColor: '#c72234',
-                                confirmButtonText: 'حسناً'
-                            });
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        isAlive = false;
-                        // Close the loading popup
-                        Swal.close();
-
-                        // Handle the error, e.g., display an error message
-                        console.log("AJAX error: " + error);
-                    }
-                });
-
-                // Close the loading popup
-                setTimeout(function() {
-                    if (isAlive){
-                        Swal.close();
-                        Swal.fire({
-                            title: '',
-                            html: '<p> تم إرسال طلب الدفعة بنجاح!</p><p>الرجاء الذهاب الى تطبيق البنك الخاص بك لقبول طلب الدفعة</p> ',
-                            confirmButtonColor: '#71BF44',
-                            confirmButtonText: 'حسناً'
-                        });
-                    }
-                }, 5000);
-
-            } catch (error) {
-                Swal.close();
-                Swal.fire({
-                    title: '',
-                    html: '<p> حدث خطأ</p>',
-                    confirmButtonColor: '#c72234',
-                    confirmButtonText: 'حسناً'
-                });
-                // Handle errors
-                console.error(error);
-
-            }
-            // Send the data to the server using AJAX
-
-        });
-    });
+<script src="script.js">
 </script>
 </body>
 </html>

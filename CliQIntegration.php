@@ -51,7 +51,7 @@ function makePaymentRequest($paymentRequestURL, $correlationID, $merchantID, $us
           "MerchantID"   => $merchantID,
           "RAliasType"   => $_POST['RAliasType'], // Replace with the selected form value
           "RAliasValue"  => $_POST['RAliasValue'], // Replace with the user input
-          "Amount"       => "5.0", // Replace with the amount from another API
+          "Amount"       => $_POST['amount'], // Replace with the amount from another API
   ];
 
   // Convert the request data to JSON
@@ -85,7 +85,9 @@ function makePaymentRequest($paymentRequestURL, $correlationID, $merchantID, $us
 
 
 // Main code
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+  echo json_encode(['amount' => '25.00']);
+} else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_POST['RAliasType'], $_POST['RAliasValue'])) {
     $correlationID = uniqid();
     $merchantID    = "AVOCADO1";
