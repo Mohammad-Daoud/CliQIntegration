@@ -85,11 +85,15 @@ function makePaymentRequest($paymentRequestURL, $correlationID, $merchantID, $us
 
 
 // Main code
+function getAmount(): string {
+  return "31.25";
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   session_start();
   $csrfToken             = bin2hex(random_bytes(32)); // Generate a random token
   $_SESSION['csrfToken'] = $csrfToken;
-  echo json_encode(['amount' => '30.00', 'token' => $csrfToken]);
+  echo json_encode(['amount' => getAmount(), 'token' => $csrfToken]);
 
 
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -120,5 +124,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     echo json_encode(["error" => "CSRF ATTACK DETECTED !!", "description" => "خطأ ... الرجاء المحاولة لاحفاً"]);
 
   }
+  session_destroy();
 }
 
